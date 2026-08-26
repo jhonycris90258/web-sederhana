@@ -27,10 +27,10 @@ app.get('/', (req, res) => {
                 <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5" alt="Ilustrasi">
 
                 <div style="margin-top: 20px;">
-                    <h3>Cari Sesuatu di Google?</h3>
+                    <h3>Cari Sesuatu disini?</h3>
                     <form action="https://www.google.com/search" method="GET">
                         <input type="text" name="q" placeholder="Ketik pencarian..." value="${keyword}">
-                        <button type="submit">Cari di Google</button>
+                        <button type="submit">telusuri</button>
                     </form>
                 </div>
             </div>
