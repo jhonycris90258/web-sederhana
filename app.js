@@ -15,21 +15,20 @@ function escapeHtml(text) {
 
 // Simulasi database rahasia pengguna
 const usersDatabase = {
-    1: { name: "Admin Ganteng", role: "Super Administrator", secret: "FLAG{XSS_Aman_Tapi_IDOR_Masuk}" },
-    2: { name: "Budi Biasa", role: "Member Regular", secret: "Tidak ada rahasia di sini." }
+    "1": { name: "Admin Ganteng", role: "Super Administrator", secret: "FLAG{XSS_Aman_Tapi_IDOR_Masuk}" },
+    "2": { name: "Budi Biasa", role: "Member Regular", secret: "Tidak ada rahasia di sini." }
 };
 
 app.get('/', (req, res) => {
     const rawKeyword = req.query.q || '';
     const keyword = escapeHtml(rawKeyword); 
     
-        // Fitur Baru: Cek parameter ID untuk melihat profil (diubah agar lebih aman dari salah baca tipe data)
+    // Fitur IDOR
     const userId = req.query.id;
     let profileContent = '';
 
     if (userId) {
-        // Kita gunakan .toString() untuk memastikan pencocokkan datanya akurat
-        const user = usersDatabase[userId.toString()];
+        const user = usersDatabase[userId];
         if (user) {
             profileContent = `
                 <div style="margin-top: 20px; padding: 10px; background: #ffeaa7; border-radius: 6px; text-align: left; font-size: 13px; color: #333;">
@@ -40,10 +39,9 @@ app.get('/', (req, res) => {
                 </div>
             `;
         } else {
-            profileContent = `<p style="color: red; font-size: 13px; margin-top: 15px;">Pengguna dengan ID "${userId}" tidak ditemukan.</p>`;
+            profileContent = `<p style="color: red; font-size: 13px; margin-top: 15px;">Pengguna tidak ditemukan.</p>`;
         }
     }
-
 
     res.send(`
         <!DOCTYPE html>
@@ -51,7 +49,7 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Website Latihan Keamanan (IDOR Test)</title>
+            <title>Website Latihan Keamanan</title>
             <style>
                 body { font-family: Arial, sans-serif; margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color: #333; }
                 .container { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 380px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); box-sizing: border-box; text-align: center; }
@@ -82,5 +80,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server IDOR test berjalan di port ${port}`);
+    console.log(`Server berjalan di port ${port}`);
 });
