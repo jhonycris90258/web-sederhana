@@ -23,26 +23,27 @@ app.get('/', (req, res) => {
     const rawKeyword = req.query.q || '';
     const keyword = escapeHtml(rawKeyword); 
     
-    // Fitur Baru: Cek parameter ID untuk melihat profil
+        // Fitur Baru: Cek parameter ID untuk melihat profil (diubah agar lebih aman dari salah baca tipe data)
     const userId = req.query.id;
     let profileContent = '';
 
     if (userId) {
-        const user = usersDatabase[userId];
+        // Kita gunakan .toString() untuk memastikan pencocokkan datanya akurat
+        const user = usersDatabase[userId.toString()];
         if (user) {
-            // Celah IDOR: Server memberikan data rahasia tanpa mengecek siapa yang login!
             profileContent = `
-                <div style="margin-top: 20px; padding: 10px; background: #ffeaa7; border-radius: 6px; text-align: left; font-size: 13px;">
+                <div style="margin-top: 20px; padding: 10px; background: #ffeaa7; border-radius: 6px; text-align: left; font-size: 13px; color: #333;">
                     <b>Profil Ditemukan (ID: ${userId})</b><br>
                     Nama: ${user.name}<br>
                     Role: ${user.role}<br>
-                    <b>Data Rahasia:</b> ${user.secret}
+                    <b>Data Rahasia:</b> <span style="color: #d63031; font-weight: bold;">${user.secret}</span>
                 </div>
             `;
         } else {
-            profileContent = `<p style="color: red; font-size: 13px; margin-top: 15px;">Pengguna tidak ditemukan.</p>`;
+            profileContent = `<p style="color: red; font-size: 13px; margin-top: 15px;">Pengguna dengan ID "${userId}" tidak ditemukan.</p>`;
         }
     }
+
 
     res.send(`
         <!DOCTYPE html>
