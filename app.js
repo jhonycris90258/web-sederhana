@@ -2,28 +2,12 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Fungsi untuk membersihkan XSS
-function escapeHtml(text) {
-    if (!text) return '';
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-// Simulasi database rahasia pengguna
 const usersDatabase = {
     "1": { name: "Admin Ganteng", role: "Super Administrator", secret: "FLAG{XSS_Aman_Tapi_IDOR_Masuk}" },
     "2": { name: "Budi Biasa", role: "Member Regular", secret: "Tidak ada rahasia di sini." }
 };
 
 app.get('/', (req, res) => {
-    const rawKeyword = req.query.q || '';
-    const keyword = escapeHtml(rawKeyword); 
-    
-    // Fitur IDOR
     const userId = req.query.id;
     let profileContent = '';
 
@@ -49,30 +33,13 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Website Latihan Keamanan</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color: #333; }
-                .container { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 380px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); box-sizing: border-box; text-align: center; }
-                h1 { color: #ff4757; font-size: 20px; }
-                .welcome-text { color: #555; font-weight: bold; font-size: 14px; }
-                input[type="text"] { padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-top: 10px; }
-                button { padding: 10px; background-color: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-            </style>
+            <title>Latihan IDOR</title>
         </head>
-        <body>
-            <div class="container">
-                <h1>RESEARCH! 🕵️‍♂️</h1>
-                <p class="welcome-text">✨ Uji Coba Celah IDOR ✨</p>
-                <div>
-                    <form action="" method="GET">
-                        <input type="text" name="q" placeholder="Ketik pencarian..." value="${keyword}">
-                        <button type="submit">telusuri</button>
-                    </form>
-                    <div style="margin-top: 15px; text-align: left; font-size: 13px;">
-                        <b>Hasil pencarian untuk:</b> ${keyword}
-                    </div>
-                    ${profileContent}
-                </div>
+        <body style="font-family: Arial; padding: 20px; text-align: center; background: #f5f7fa;">
+            <div style="background: white; padding: 20px; border-radius: 10px; display: inline-block; max-width: 350px; width: 100%;">
+                <h2 style="color: #ff4757;">Uji Coba IDOR 🕵️‍♂️</h2>
+                <p>Tambah parameter <b>?id=1</b> atau <b>?id=2</b> di URL atas.</p>
+                ${profileContent}
             </div>
         </body>
         </html>
@@ -80,5 +47,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server berjalan di port ${port}`);
+    console.log(`Server aktif di port ${port}`);
 });
