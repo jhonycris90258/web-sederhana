@@ -10,55 +10,68 @@ app.get('/', (req, res) => {
         <html lang="id">
         <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Website Latihan Keamanan</title>
             <style>
                 body { 
                     font-family: Arial, sans-serif; 
-                    text-align: center; 
-                    margin-top: 40px; 
+                    margin: 0;
+                    padding: 15px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
                     background: linear-gradient(135deg, #f5f7fa, #c3cfe2); 
                     color: #333; 
                 }
                 .container { 
                     background: white; 
-                    padding: 25px; 
+                    padding: 20px; 
                     border-radius: 12px; 
-                    display: inline-block; 
+                    width: 100%;
+                    max-width: 380px;
                     box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+                    box-sizing: border-box;
+                    text-align: center;
                 }
-                /* Mengatur warna judul utama */
                 h1 { 
                     color: #ff4757; 
-                    font-size: 22px; 
+                    font-size: 20px; 
                 }
-                /* Mengatur warna teks di bawah judul */
                 .welcome-text { 
                     color: #2ed573; 
                     font-weight: bold; 
+                    font-size: 14px;
                 }
                 img { 
-                    width: 200px; 
+                    width: 100%; 
+                    max-width: 180px; 
+                    height: auto;
                     border-radius: 8px; 
-                    margin-top: 15px; 
+                    margin-top: 10px; 
+                }
+                form {
+                    margin-top: 15px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
                 }
                 input[type="text"] { 
-                    padding: 8px; 
-                    width: 200px; 
+                    padding: 10px; 
+                    width: 100%; 
                     border: 1px solid #ccc; 
                     border-radius: 4px; 
+                    box-sizing: border-box;
                 }
-                /* Mengatur warna tombol telusuri */
                 button { 
-                    padding: 8px 15px; 
+                    padding: 10px; 
                     background-color: #ff4757; 
                     color: white; 
                     border: none; 
                     border-radius: 4px; 
                     cursor: pointer; 
                     font-weight: bold;
-                }
-                button:hover {
-                    background-color: #ff6b81;
+                    width: 100%;
                 }
             </style>
         </head>
@@ -69,7 +82,7 @@ app.get('/', (req, res) => {
                 
                 <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5" alt="Ilustrasi">
 
-                <div style="margin-top: 20px;">
+                <div>
                     <h3>Cari Sesuatu disini?</h3>
                     <form action="https://www.google.com/search" method="GET">
                         <input type="text" name="q" placeholder="Ketik pencarian..." value="${keyword}">
