@@ -2,8 +2,21 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Fungsi kecil untuk membersihkan karakter berbahaya (mencegah XSS)
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 app.get('/', (req, res) => {
-    const keyword = req.query.q || '';
+    // Ambil input user, lalu bersihkan menggunakan fungsi escapeHtml di atas
+    const rawKeyword = req.query.q || '';
+    const keyword = escapeHtml(rawKeyword); 
     
     res.send(`
         <!DOCTYPE html>
@@ -11,25 +24,21 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Website Latihan Keamanan</title>
+            <title>Website Latihan Keamanan (Aman)</title>
             <style>
                 body { font-family: Arial, sans-serif; margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color: #333; }
                 .container { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 380px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); box-sizing: border-box; text-align: center; }
-                h1 { color: #ff4757; font-size: 20px; }
-                .welcome-text { color: #2ed573; font-weight: bold; font-size: 14px; }
-                img { width: 100%; max-width: 180px; height: auto; border-radius: 8px; margin-top: 10px; }
-                form { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
-                input[type="text"] { padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-                button { padding: 10px; background-color: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
+                h1 { color: #2ed573; font-size: 20px; }
+                .welcome-text { color: #555; font-weight: bold; font-size: 14px; }
+                input[type="text"] { padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-top: 10px; }
+                button { padding: 10px; background-color: #2ed573; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
             </style>
         </head>
         <body>
             <div class="container">
-                <h1>RESEARCH! 🚀</h1>
-                <p class="welcome-text">✨ Selamat datang di lab uji coba. ✨</p>
-                <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5" alt="Ilustrasi">
+                <h1>RESEARCH! 🛡️</h1>
+                <p class="welcome-text">✨ Website sudah diamankan dari XSS. ✨</p>
                 <div>
-                    <h3>Cari Sesuatu disini?</h3>
                     <form action="" method="GET">
                         <input type="text" name="q" placeholder="Ketik pencarian..." value="${keyword}">
                         <button type="submit">telusuri</button>
@@ -45,5 +54,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server jalan di port ${port}`);
+    console.log(`Server aman berjalan di port ${port}`);
 });
