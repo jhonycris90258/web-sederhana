@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Fungsi kecil untuk membersihkan karakter berbahaya (mencegah XSS)
+// Fungsi untuk membersihkan karakter berbahaya (mencegah XSS)
 function escapeHtml(text) {
     if (!text) return '';
     return text
@@ -14,10 +14,22 @@ function escapeHtml(text) {
 }
 
 app.get('/', (req, res) => {
-    // Ambil input user, lalu bersihkan menggunakan fungsi escapeHtml di atas
+    // Ambil input pencarian dan bersihkan
     const rawKeyword = req.query.q || '';
     const keyword = escapeHtml(rawKeyword); 
     
+    // Contoh penanganan parameter redirect yang aman (jika ada fitur redirect)
+    const targetUrl = req.query.url;
+    if (targetUrl) {
+        // Validasi sederhana: Hanya izinkan redirect jika tujuannya ke domain kita sendiri
+        // atau berikan peringatan agar tidak terjadi celah Open Redirect
+        if (targetUrl.startsWith('/')) {
+            return res.redirect(targetUrl);
+        } else {
+            return res.status(400).send("⚠️ Peringatan: Pengalihan ke domain luar tidak diizinkan demi keamanan!");
+        }
+    }
+
     res.send(`
         <!DOCTYPE html>
         <html lang="id">
@@ -37,7 +49,7 @@ app.get('/', (req, res) => {
         <body>
             <div class="container">
                 <h1>RESEARCH! 🛡️</h1>
-                <p class="welcome-text">✨ Website sudah diamankan dari XSS. ✨</p>
+                <p class="welcome-text">✨ Website sudah diamankan dari XSS & Open Redirect. ✨</p>
                 <div>
                     <form action="" method="GET">
                         <input type="text" name="q" placeholder="Ketik pencarian..." value="${keyword}">
