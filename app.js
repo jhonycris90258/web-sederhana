@@ -64,8 +64,8 @@ app.get('/', (req, res) => {
         </head>
         <body>
             <div class="container">
-                <h1>Halo! selamat datang di pencarian silahkan ketik sesuatu! 🚀</h1>
-                <p class="welcome-text">✨ Selamat datang di lab uji coba pencarian Google. ✨</p>
+                <h1>RESEARCH! 🚀</h1>
+                <p class="welcome-text">✨ Selamat datang di lab uji coba. ✨</p>
                 
                 <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5" alt="Ilustrasi">
 
