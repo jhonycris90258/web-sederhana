@@ -3,13 +3,138 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Agar bisa membaca form POST dari halaman login
+
+// --- KONFIGURASI SANDI ADMIN ---
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'rahasia123'; 
+
+// Penyimpanan sesi aktif sederhana di memori server
+const activeSessions = new Set();
 
 let riwayatLokasi = []; 
 let daftarAplikasi = [];
 let galeriFoto = [];
 let logWhatsApp = [];
 
-app.get('/', (req, res) => {
+// --- HALAMAN LOGIN ---
+app.get('/login', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Login - Parental Control Center</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+                    color: #1e293b;
+                    margin: 0;
+                    padding: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                }
+                .login-card {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(10px);
+                    border-radius: 16px;
+                    padding: 30px;
+                    width: 100%;
+                    max-width: 380px;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+                    text-align: center;
+                }
+                h2 { margin-top: 0; color: #1e293b; font-size: 22px; }
+                p { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+                input[type="password"] {
+                    width: 100%;
+                    padding: 12px;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    box-sizing: border-box;
+                    margin-bottom: 15px;
+                    outline: none;
+                }
+                input[type="password"]:focus {
+                    border-color: #6366f1;
+                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+                }
+                button {
+                    background-color: #6366f1;
+                    color: white;
+                    border: none;
+                    width: 100%;
+                    padding: 12px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);
+                }
+                button:hover { background-color: #4f46e5; }
+                .error { color: #ef4444; font-size: 12px; margin-bottom: 15px; }
+            </style>
+        </head>
+        <body>
+            <div class="login-card">
+                <h2>🛡️ Autorisasi Masuk</h2>
+                <p>Masukkan sandi untuk mengakses Parental Control Center</p>
+                
+                ${req.query.error ? '<div class="error">Sandi salah, silakan coba lagi!</div>' : ''}
+                
+                <form action="/api/login" method="POST">
+                    <input type="password" name="password" placeholder="Kata Sandi Admin" required autofocus>
+                    <button type="submit">Masuk Dashboard</button>
+                </form>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
+// --- PROSES LOGIN ---
+app.post('/api/login', (req, res) => {
+    const { password } = req.body;
+    if (password === ADMIN_PASSWORD) {
+        // Buat token sesi acak sederhana
+        const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        activeSessions.add(sessionToken);
+
+        // Arahkan ke halaman utama dengan membawa token di URL (Query Parameter)
+        return res.redirect(`/?token=${sessionToken}`);
+    } else {
+        return res.redirect('/login?error=true');
+    }
+});
+
+// --- TOMBOL LOGOUT ---
+app.get('/logout', (req, res) => {
+    const { token } = req.query;
+    if (token) {
+        activeSessions.delete(token); // Hapus sesi dari memori
+    }
+    res.redirect('/login');
+});
+
+// --- MIDDLEWARE PENGECEKAN KEAMANAN ---
+function requireAuth(req, res, next) {
+    const token = req.query.token;
+    if (token && activeSessions.has(token)) {
+        req.userToken = token; // Teruskan token untuk dipakai di link tombol
+        next(); // Lanjut ke dashboard jika token valid
+    } else {
+        res.redirect('/login'); // Lempar ke halaman login jika belum masuk / token tidak valid
+    }
+}
+
+// --- HALAMAN UTAMA (DILINDUNGI SANDI) ---
+app.get('/', requireAuth, (req, res) => {
+    const token = req.userToken;
+
     res.send(`
         <!DOCTYPE html>
         <html lang="id">
@@ -30,11 +155,12 @@ app.get('/', (req, res) => {
                     max-width: 900px;
                     margin: 0 auto;
                 }
-                    header {
+                header {
                     text-align: center;
                     margin-bottom: 30px;
                     color: white;
                     text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    position: relative;
                 }
                 header h1 {
                     margin: 0;
@@ -45,6 +171,20 @@ app.get('/', (req, res) => {
                     opacity: 0.9;
                     margin-top: 5px;
                 }
+                .btn-logout {
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    background: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    border: 1px solid rgba(255, 255, 255, 0.4);
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    text-decoration: none;
+                    font-size: 12px;
+                    backdrop-filter: blur(5px);
+                }
+                .btn-logout:hover { background: rgba(255, 255, 255, 0.3); }
                 .card {
                     background: rgba(255, 255, 255, 0.95);
                     backdrop-filter: blur(10px);
@@ -82,8 +222,6 @@ app.get('/', (req, res) => {
                     font-size: 13px;
                     border-bottom: 1px solid #e2e8f0;
                 }
-                
-                /* Warna Header Tabel Khusus per Kartu */
                 .card.location th { background-color: #eff6ff; color: #1d4ed8; }
                 .card.apps th { background-color: #ecfdf5; color: #047857; }
                 .card.whatsapp th { background-color: #fffbeb; color: #b45309; }
@@ -94,9 +232,7 @@ app.get('/', (req, res) => {
                     font-size: 11px;
                     letter-spacing: 0.5px;
                 }
-                tr:hover {
-                    background-color: #f8fafc;
-                }
+                tr:hover { background-color: #f8fafc; }
                 .badge {
                     background-color: #dcfce7;
                     color: #15803d;
@@ -116,9 +252,7 @@ app.get('/', (req, res) => {
                     display: inline-block;
                     box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
                 }
-                .btn-map:hover {
-                    background-color: #2563eb;
-                }
+                .btn-map:hover { background-color: #2563eb; }
                 .gallery-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -148,6 +282,7 @@ app.get('/', (req, res) => {
         <body>
             <div class="container">
                 <header>
+                    <a href="/logout?token=${token}" class="btn-logout">Keluar</a>
                     <h1>🛡️ Parental Control Center</h1>
                     <p>Pantauan Aktivitas Perangkat Anak secara Real-Time</p>
                 </header>
@@ -235,7 +370,7 @@ app.get('/', (req, res) => {
     `);
 });
 
-// --- ENDPOINT API PENERIMA DATA ---
+// --- ENDPOINT API PENERIMA DATA (TETAP TERBUKA UNTUK HP ANAK) ---
 app.post('/api/lapor-lokasi', (req, res) => {
     const { lat, lon } = req.body;
     if (lat && lon) {
@@ -279,5 +414,5 @@ app.post('/api/lapor-foto', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server dashboard elegan berjalan di port ${PORT}`);
+    console.log(`Server dashboard aman berjalan di port ${PORT}`);
 });
