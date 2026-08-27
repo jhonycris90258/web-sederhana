@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Akun</title>
+    <style>
+        body { font-family: sans-serif; background: linear-gradient(135deg, #1e3c72, #2a5298); height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; color: #333; }
+        .box { background: white; padding: 30px; border-radius: 10px; width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #2a5298; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        a { color: #2a5298; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>📝 Daftar Akun Baru</h2>
+        <form onsubmit="alert('Pendaftaran berhasil! Silakan login.'); window.location='/'; return false;">
+            <input type="text" placeholder="Nama Pengguna Baru" required>
+            <input type="password" placeholder="Kata Sandi Baru" required>
+            <button type="submit">Daftar</button>
+        </form>
+        <br>
+        <a href="/">← Kembali ke Login</a>
+    </div>
+</body>
+</html>
