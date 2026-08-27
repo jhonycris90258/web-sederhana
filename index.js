@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/daftar', (req, res) => {
-    res.send('<h1>Halaman Daftar</h1><p>Fitur pendaftaran akan segera hadir.</p><a href="/">Kembali ke Login</a>');
+    res.sendFile(path.join(__dirname, 'public', 'daftar.html'));
 });
 
 app.post('/login', (req, res) => {
@@ -19,28 +19,21 @@ app.post('/login', (req, res) => {
     if (username === 'admin' && password === 'rahasia123') {
         res.redirect('/dashboard');
     } else {
-        res.send('<h1>Login Gagal</h1><p>Nama pengguna atau kata sandi salah.</p><a href="/">Coba Lagi</a>');
+        res.send('<script>alert("Login Gagal! Username atau Password salah."); window.location="/";</script>');
     }
 });
 
+// Halaman Dashboard Berwarna & Berbentuk Tabel
 app.get('/dashboard', (req, res) => {
-    res.send(`
-        <h1>Selamat Datang, Admin!</h1>
-        <p>Dashboard Parental Control aktif.</p>
-        <ul>
-            <li><a href="/dashboard/lokasi">Lihat Lokasi Saat Ini</a></li>
-            <li><a href="/dashboard/riwayat-web">Lihat Riwayat Website</a></li>
-            <li><a href="/dashboard/galeri">Lihat Galeri</a></li>
-            <li><a href="/dashboard/whatsapp">Pantau WhatsApp</a></li>
-        </ul>
-        <a href="/">Keluar (Logout)</a>
-    `);
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-app.get('/dashboard/lokasi', (req, res) => { res.send('<h1>Peta Lokasi</h1><a href="/dashboard">Kembali</a>'); });
-app.get('/dashboard/riwayat-web', (req, res) => { res.send('<h1>Riwayat Website</h1><a href="/dashboard">Kembali</a>'); });
-app.get('/dashboard/galeri', (req, res) => { res.send('<h1>Galeri Foto</h1><a href="/dashboard">Kembali</a>'); });
-app.get('/dashboard/whatsapp', (req, res) => { res.send('<h1>Riwayat Pesan WhatsApp</h1><a href="/dashboard">Kembali</a>'); });
+// Endpoint Fitur-fitur
+app.get('/dashboard/lokasi', (req, res) => { res.send('<h2>📍 Peta Lokasi Perangkat Anak</h2><p>Melacak koordinat secara real-time...</p><a href="/dashboard">Kembali ke Dashboard</a>'); });
+app.get('/dashboard/riwayat-web', (req, res) => { res.send('<h2>🌐 Riwayat Website</h2><p>Daftar situs yang dikunjungi anak...</p><a href="/dashboard">Kembali ke Dashboard</a>'); });
+app.get('/dashboard/galeri', (req, res) => { res.send('<h2>🖼️ Galeri Foto</h2><p>Menampilkan foto dari perangkat anak...</p><a href="/dashboard">Kembali</a>'); });
+app.get('/dashboard/whatsapp', (req, res) => { res.send('<h2>💬 Pantau WhatsApp</h2><p>Riwayat pesan masuk dan keluar...</p><a href="/dashboard">Kembali</a>'); });
+app.get('/dashboard/apk-install', (req, res) => { res.send('<h2>📱 APK Install / Daftar Aplikasi</h2><p>Aplikasi yang terpasang di HP anak...</p><a href="/dashboard">Kembali</a>'); });
 
 app.listen(port, () => {
     console.log(`Server berjalan di port ${port}`);
