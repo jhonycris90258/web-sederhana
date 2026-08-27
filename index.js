@@ -1,6 +1,5 @@
 const express = require('express');
 const crypto = require('crypto');
-const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,18 +10,15 @@ app.use(express.urlencoded({ extended: true }));
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'rahasia123'; 
 const activeSessions = new Set();
 
-const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 5, 
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: '⚠️ Terlalu banyak percobaan login yang gagal. Silakan coba lagi setelah 15 menit.'
-});
-
 let riwayatLokasi = []; 
 let daftarAplikasi = [];
 let galeriFoto = [];
 let logWhatsApp = [];
+
+// Rute utama langsung arahkan ke /login
+app.get('/', (req, res) => {
+    res.redirect('/login');
+});
 
 app.get('/login', (req, res) => {
     res.send(`
@@ -34,7 +30,7 @@ app.get('/login', (req, res) => {
             <title>Login - Parental Control Center</title>
             <style>
                 body {
-                    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                    font-family: 'Segoe UI', system-ui, sans-serif;
                     background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
                     color: #1e293b; margin: 0; padding: 20px;
                     display: flex; justify-content: center; align-items: center; min-height: 100vh;
@@ -44,7 +40,6 @@ app.get('/login', (req, res) => {
                     border-radius: 20px; padding: 35px 30px; width: 100%; max-width: 380px;
                     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3); text-align: center;
                 }
-                .icon-shield { font-size: 40px; margin-bottom: 10px; }
                 h2 { margin: 0 0 5px 0; color: #0f172a; font-size: 22px; }
                 p { font-size: 13px; color: #64748b; margin-bottom: 25px; }
                 input[type="password"] {
@@ -61,13 +56,12 @@ app.get('/login', (req, res) => {
         </head>
         <body>
             <div class="login-card">
-                <div class="icon-shield">🛡️</div>
-                <h2>Parental Control</h2>
-                <p>Masukkan sandi rahasia untuk mengakses pusat pantauan perangkat anak.</p>
-                ${req.query.error ? '<div class="error">⚠️ Kata sandi salah, silakan coba lagi.</div>' : ''}
+                <h2>🛡️ Parental Control</h2>
+                <p>Masukkan sandi rahasia untuk mengakses pusat pantauan.</p>
+                ${req.query.error ? '<div class="error">⚠️ Kata sandi salah!</div>' : ''}
                 <form action="/api/login" method="POST">
                     <input type="password" name="password" placeholder="Kata Sandi Admin" required autofocus>
-                    <button type="submit">Masuk ke Dashboard</button>
+                    <button type="submit">Masuk</button>
                 </form>
             </div>
         </body>
@@ -75,7 +69,7 @@ app.get('/login', (req, res) => {
     `);
 });
 
-app.post('/api/login', loginLimiter, (req, res) => {
+app.post('/api/login', (req, res) => {
     const { password } = req.body;
     const inputBuffer = Buffer.from(password || '');
     const realPasswordBuffer = Buffer.from(ADMIN_PASSWORD);
@@ -116,24 +110,14 @@ app.get('/', requireAuth, (req, res) => {
         <!DOCTYPE html>
         <html lang="id">
         <head><title>Dashboard</title></head>
-        <body style="font-family:sans-serif; text-align:center; padding:50px;">
+        <body style="font-family:sans-serif; text-align:center; padding:50px; background:#f1f5f9;">
             <h1>🎉 Berhasil Masuk ke Dashboard!</h1>
-            <p>Sistem keamanan berjalan normal.</p>
-            <a href="/logout?token=${token}" style="background:red; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Keluar</a>
+            <p>Sistem pengamanan sandi aktif dan berjalan normal.</p>
+            <br>
+            <a href="/logout?token=${token}" style="background:#ef4444; color:white; padding:12px 24px; text-decoration:none; border-radius:8px; font-weight:bold;">Keluar</a>
         </body>
         </html>
     `);
-});
-
-// Endpoint pelaporan data...
-app.post('/api/lapor-lokasi', (req, res) => {
-    const { lat, lon } = req.body;
-    if (lat && lon) {
-        riwayatLokasi.unshift({ lat, lon, waktu: new Date().toLocaleTimeString() });
-        res.json({ status: 'success' });
-    } else {
-        res.status(400).json({ status: 'error' });
-    }
 });
 
 app.listen(PORT, () => {
