@@ -3,12 +3,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Agar bisa membaca form POST dari halaman login
+app.use(express.urlencoded({ extended: true }));
 
 // --- KONFIGURASI SANDI ADMIN ---
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'rahasia123'; 
-
-// Penyimpanan sesi aktif sederhana di memori server
 const activeSessions = new Set();
 
 let riwayatLokasi = []; 
@@ -16,7 +14,7 @@ let daftarAplikasi = [];
 let galeriFoto = [];
 let logWhatsApp = [];
 
-// --- HALAMAN LOGIN ---
+// --- HALAMAN LOGIN ELEGAN ---
 app.get('/login', (req, res) => {
     res.send(`
         <!DOCTYPE html>
@@ -28,67 +26,96 @@ app.get('/login', (req, res) => {
             <style>
                 body {
                     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-                    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
                     color: #1e293b;
                     margin: 0;
-                    padding: 0;
+                    padding: 20px;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     min-height: 100vh;
                 }
                 .login-card {
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(10px);
-                    border-radius: 16px;
-                    padding: 30px;
+                    background: rgba(255, 255, 255, 0.9);
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 20px;
+                    padding: 35px 30px;
                     width: 100%;
                     max-width: 380px;
-                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+                    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
                     text-align: center;
                 }
-                h2 { margin-top: 0; color: #1e293b; font-size: 22px; }
-                p { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+                .icon-shield {
+                    font-size: 40px;
+                    margin-bottom: 10px;
+                }
+                h2 { margin: 0 0 5px 0; color: #0f172a; font-size: 22px; font-weight: 700; }
+                p { font-size: 13px; color: #64748b; margin-bottom: 25px; line-height: 1.5; }
+                
+                .input-group {
+                    position: relative;
+                    margin-bottom: 18px;
+                }
                 input[type="password"] {
                     width: 100%;
-                    padding: 12px;
-                    border: 1px solid #cbd5e1;
-                    border-radius: 8px;
+                    padding: 14px 16px;
+                    border: 1.5px solid #cbd5e1;
+                    border-radius: 12px;
                     font-size: 14px;
                     box-sizing: border-box;
-                    margin-bottom: 15px;
                     outline: none;
+                    background: #f8fafc;
+                    transition: all 0.3s ease;
                 }
                 input[type="password"]:focus {
                     border-color: #6366f1;
-                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+                    background: #fff;
+                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
                 }
                 button {
-                    background-color: #6366f1;
+                    background: linear-gradient(135deg, #6366f1, #4f46e5);
                     color: white;
                     border: none;
                     width: 100%;
-                    padding: 12px;
-                    border-radius: 8px;
+                    padding: 14px;
+                    border-radius: 12px;
                     font-size: 14px;
                     font-weight: 600;
                     cursor: pointer;
-                    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);
+                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
                 }
-                button:hover { background-color: #4f46e5; }
-                .error { color: #ef4444; font-size: 12px; margin-bottom: 15px; }
+                button:hover { 
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5); 
+                }
+                button:active { transform: translateY(0); }
+                .error { 
+                    background: #fee2e2;
+                    color: #991b1b;
+                    font-size: 12px;
+                    padding: 10px;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                    border: 1px solid #fca5a5;
+                }
             </style>
         </head>
         <body>
             <div class="login-card">
-                <h2>🛡️ Autorisasi Masuk</h2>
-                <p>Masukkan sandi untuk mengakses Parental Control Center</p>
+                <div class="icon-shield">🛡️</div>
+                <h2>Parental Control</h2>
+                <p>Masukkan sandi rahasia untuk mengakses pusat pantauan perangkat anak.</p>
                 
-                ${req.query.error ? '<div class="error">Sandi salah, silakan coba lagi!</div>' : ''}
+                ${req.query.error ? '<div class="error">⚠️ Kata sandi salah, silakan coba lagi.</div>' : ''}
                 
                 <form action="/api/login" method="POST">
-                    <input type="password" name="password" placeholder="Kata Sandi Admin" required autofocus>
-                    <button type="submit">Masuk Dashboard</button>
+                    <div class="input-group">
+                        <input type="password" name="password" placeholder="Kata Sandi Admin" required autofocus>
+                    </div>
+                    <button type="submit">Masuk ke Dashboard</button>
                 </form>
             </div>
         </body>
@@ -100,38 +127,33 @@ app.get('/login', (req, res) => {
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
     if (password === ADMIN_PASSWORD) {
-        // Buat token sesi acak sederhana
         const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
         activeSessions.add(sessionToken);
-
-        // Arahkan ke halaman utama dengan membawa token di URL (Query Parameter)
         return res.redirect(`/?token=${sessionToken}`);
     } else {
         return res.redirect('/login?error=true');
     }
 });
 
-// --- TOMBOL LOGOUT ---
+// --- LOGOUT ---
 app.get('/logout', (req, res) => {
     const { token } = req.query;
-    if (token) {
-        activeSessions.delete(token); // Hapus sesi dari memori
-    }
+    if (token) activeSessions.delete(token);
     res.redirect('/login');
 });
 
-// --- MIDDLEWARE PENGECEKAN KEAMANAN ---
+// --- MIDDLEWARE KEAMANAN ---
 function requireAuth(req, res, next) {
     const token = req.query.token;
     if (token && activeSessions.has(token)) {
-        req.userToken = token; // Teruskan token untuk dipakai di link tombol
-        next(); // Lanjut ke dashboard jika token valid
+        req.userToken = token;
+        next();
     } else {
-        res.redirect('/login'); // Lempar ke halaman login jika belum masuk / token tidak valid
+        res.redirect('/login');
     }
 }
 
-// --- HALAMAN UTAMA (DILINDUNGI SANDI) ---
+// --- HALAMAN UTAMA (DASHBOARD ELEGAN) ---
 app.get('/', requireAuth, (req, res) => {
     const token = req.userToken;
 
@@ -145,10 +167,10 @@ app.get('/', requireAuth, (req, res) => {
             <style>
                 body {
                     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-                    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
                     color: #1e293b;
                     margin: 0;
-                    padding: 20px;
+                    padding: 25px 15px;
                     min-height: 100vh;
                 }
                 .container {
@@ -157,43 +179,68 @@ app.get('/', requireAuth, (req, res) => {
                 }
                 header {
                     text-align: center;
-                    margin-bottom: 30px;
+                    margin-bottom: 35px;
                     color: white;
-                    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
                     position: relative;
                 }
                 header h1 {
                     margin: 0;
-                    font-size: 26px;
+                    font-size: 28px;
+                    font-weight: 700;
+                    letter-spacing: -0.5px;
+                    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
                 }
                 header p {
                     font-size: 14px;
                     opacity: 0.9;
-                    margin-top: 5px;
+                    margin-top: 6px;
+                }
+                .status-pill {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: rgba(255, 255, 255, 0.2);
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    margin-top: 8px;
+                    backdrop-filter: blur(4px);
+                }
+                .dot {
+                    width: 8px;
+                    height: 8px;
+                    background-color: #4ade80;
+                    border-radius: 50%;
+                    box-shadow: 0 0 8px #4ade80;
                 }
                 .btn-logout {
                     position: absolute;
                     right: 0;
                     top: 0;
-                    background: rgba(255, 255, 255, 0.2);
+                    background: rgba(255, 255, 255, 0.15);
                     color: white;
-                    border: 1px solid rgba(255, 255, 255, 0.4);
-                    padding: 6px 12px;
-                    border-radius: 6px;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    padding: 8px 14px;
+                    border-radius: 10px;
                     text-decoration: none;
                     font-size: 12px;
-                    backdrop-filter: blur(5px);
+                    font-weight: 600;
+                    backdrop-filter: blur(6px);
+                    transition: background 0.2s;
                 }
-                .btn-logout:hover { background: rgba(255, 255, 255, 0.3); }
+                .btn-logout:hover { background: rgba(255, 255, 255, 0.25); }
+                
                 .card {
                     background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(10px);
-                    border-radius: 16px;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+                    backdrop-filter: blur(12px);
+                    border-radius: 18px;
+                    padding: 22px;
+                    margin-bottom: 22px;
+                    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15);
                     border-left: 6px solid #6366f1;
+                    transition: transform 0.2s ease;
                 }
+                .card:hover { transform: translateY(-2px); }
                 .card.location { border-left-color: #3b82f6; }
                 .card.apps { border-left-color: #10b981; }
                 .card.gallery { border-left-color: #8b5cf6; }
@@ -202,25 +249,23 @@ app.get('/', requireAuth, (req, res) => {
                 .card h3 {
                     margin-top: 0;
                     font-size: 16px;
-                    color: #1e293b;
+                    color: #0f172a;
                     border-bottom: 2px solid #f1f5f9;
-                    padding-bottom: 10px;
+                    padding-bottom: 12px;
                     display: flex;
                     align-items: center;
-                    gap: 8px;
+                    gap: 10px;
                 }
                 table {
                     width: 100%;
                     border-collapse: collapse;
-                    margin-top: 10px;
-                    overflow: hidden;
-                    border-radius: 8px;
+                    margin-top: 8px;
                 }
                 th, td {
-                    padding: 12px;
+                    padding: 12px 10px;
                     text-align: left;
                     font-size: 13px;
-                    border-bottom: 1px solid #e2e8f0;
+                    border-bottom: 1px solid #f1f5f9;
                 }
                 .card.location th { background-color: #eff6ff; color: #1d4ed8; }
                 .card.apps th { background-color: #ecfdf5; color: #047857; }
@@ -231,51 +276,57 @@ app.get('/', requireAuth, (req, res) => {
                     text-transform: uppercase;
                     font-size: 11px;
                     letter-spacing: 0.5px;
+                    border-radius: 6px;
                 }
                 tr:hover { background-color: #f8fafc; }
                 .badge {
                     background-color: #dcfce7;
                     color: #15803d;
-                    padding: 4px 8px;
-                    border-radius: 6px;
+                    padding: 5px 10px;
+                    border-radius: 8px;
                     font-size: 11px;
                     font-weight: 600;
                 }
                 .btn-map {
                     background-color: #3b82f6;
                     color: white;
-                    padding: 6px 12px;
-                    border-radius: 6px;
+                    padding: 6px 14px;
+                    border-radius: 8px;
                     text-decoration: none;
                     font-size: 12px;
-                    font-weight: 500;
+                    font-weight: 600;
                     display: inline-block;
-                    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+                    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+                    transition: background 0.2s;
                 }
                 .btn-map:hover { background-color: #2563eb; }
                 .gallery-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-                    gap: 10px;
+                    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                    gap: 12px;
                     margin-top: 10px;
                 }
                 .gallery-item {
-                    border-radius: 8px;
+                    border-radius: 10px;
                     overflow: hidden;
                     border: 1px solid #e2e8f0;
                     background: #f8fafc;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
                 }
                 .gallery-item img {
                     width: 100%;
-                    height: 90px;
+                    height: 95px;
                     object-fit: cover;
                     display: block;
+                    transition: transform 0.2s;
                 }
+                .gallery-item img:hover { transform: scale(1.05); }
                 .empty-state {
                     text-align: center;
                     color: #94a3b8;
                     font-style: italic;
-                    padding: 15px;
+                    padding: 20px;
+                    font-size: 13px;
                 }
             </style>
         </head>
@@ -285,6 +336,7 @@ app.get('/', requireAuth, (req, res) => {
                     <a href="/logout?token=${token}" class="btn-logout">Keluar</a>
                     <h1>🛡️ Parental Control Center</h1>
                     <p>Pantauan Aktivitas Perangkat Anak secara Real-Time</p>
+                    <div class="status-pill"><span class="dot"></span> Server Aktif & Terlindungi</div>
                 </header>
 
                 <!-- LOKASI GPS -->
@@ -299,7 +351,7 @@ app.get('/', requireAuth, (req, res) => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${riwayatLokasi.length === 0 ? '<tr><td colspan="3" class="empty-state">Belum ada data lokasi</td></tr>' : 
+                            ${riwayatLokasi.length === 0 ? '<tr><td colspan="3" class="empty-state">Belum ada data lokasi tercatat</td></tr>' : 
                               riwayatLokasi.map(item => `
                                 <tr>
                                     <td>${item.waktu}</td>
@@ -334,7 +386,7 @@ app.get('/', requireAuth, (req, res) => {
                 <!-- GALERI FOTO -->
                 <div class="card gallery">
                     <h3>🖼️ Galeri / Tangkapan Layar</h3>
-                    ${galeriFoto.length === 0 ? '<div class="empty-state">Belum ada foto yang diunggah.</div>' : `
+                    ${galeriFoto.length === 0 ? '<div class="empty-state">Belum ada foto atau screenshot yang diunggah.</div>' : `
                         <div class="gallery-grid">
                             ${galeriFoto.map(f => `
                                 <div class="gallery-item">
@@ -355,7 +407,7 @@ app.get('/', requireAuth, (req, res) => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${logWhatsApp.length === 0 ? '<tr><td colspan="2" class="empty-state">Belum ada log WhatsApp</td></tr>' : 
+                            ${logWhatsApp.length === 0 ? '<tr><td colspan="2" class="empty-state">Belum ada log pesan WhatsApp</td></tr>' : 
                               logWhatsApp.map(w => `
                                 <tr>
                                     <td style="width: 25%;">${w.waktu}</td>
@@ -370,7 +422,7 @@ app.get('/', requireAuth, (req, res) => {
     `);
 });
 
-// --- ENDPOINT API PENERIMA DATA (TETAP TERBUKA UNTUK HP ANAK) ---
+// --- ENDPOINT API PENERIMA DATA ---
 app.post('/api/lapor-lokasi', (req, res) => {
     const { lat, lon } = req.body;
     if (lat && lon) {
@@ -414,5 +466,5 @@ app.post('/api/lapor-foto', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server dashboard aman berjalan di port ${PORT}`);
+    console.log(`Server dashboard berjalan elegan di port ${PORT}`);
 });
