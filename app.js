@@ -1,4 +1,7 @@
 const express = require('express');
+const crypto = require('crypto'); // Modul bawaan Node.js untuk keamanan kriptografi
+const rateLimit = require('express-rate-limit'); // Wajib install: npm install express-rate-limit
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -8,6 +11,15 @@ app.use(express.urlencoded({ extended: true }));
 // --- KONFIGURASI SANDI ADMIN ---
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'rahasia123'; 
 const activeSessions = new Set();
+
+// --- PENGAMAN RATE LIMITING (Mencegah Brute-Force) ---
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // Jeda waktu 15 menit
+    max: 5, // Maksimal 5 kali percobaan gagal per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: '⚠️ Terlalu banyak percobaan login yang gagal. Silakan coba lagi setelah 15 menit.'
+});
 
 let riwayatLokasi = []; 
 let daftarAplikasi = [];
@@ -47,17 +59,11 @@ app.get('/login', (req, res) => {
                     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
                     text-align: center;
                 }
-                .icon-shield {
-                    font-size: 40px;
-                    margin-bottom: 10px;
-                }
+                .icon-shield { font-size: 40px; margin-bottom: 10px; }
                 h2 { margin: 0 0 5px 0; color: #0f172a; font-size: 22px; font-weight: 700; }
                 p { font-size: 13px; color: #64748b; margin-bottom: 25px; line-height: 1.5; }
                 
-                .input-group {
-                    position: relative;
-                    margin-bottom: 18px;
-                }
+                .input-group { position: relative; margin-bottom: 18px; }
                 input[type="password"] {
                     width: 100%;
                     padding: 14px 16px;
@@ -87,19 +93,11 @@ app.get('/login', (req, res) => {
                     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
                     transition: transform 0.2s ease, box-shadow 0.2s ease;
                 }
-                button:hover { 
-                    transform: translateY(-1px);
-                    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5); 
-                }
+                button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5); }
                 button:active { transform: translateY(0); }
                 .error { 
-                    background: #fee2e2;
-                    color: #991b1b;
-                    font-size: 12px;
-                    padding: 10px;
-                    border-radius: 8px;
-                    margin-bottom: 20px;
-                    border: 1px solid #fca5a5;
+                    background: #fee2e2; color: #991b1b; font-size: 12px; 
+                    padding: 10px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #fca5a5; 
                 }
             </style>
         </head>
@@ -123,10 +121,20 @@ app.get('/login', (req, res) => {
     `);
 });
 
-// --- PROSES LOGIN ---
-app.post('/api/login', (req, res) => {
+// --- PROSES LOGIN (Dilindungi Rate Limiter & Timing Safe Equal) ---
+app.post('/api/login', loginLimiter, (req, res) => {
     const { password } = req.body;
-    if (password === ADMIN_PASSWORD) {
+    
+    const inputBuffer = Buffer.from(password || '');
+    const realPasswordBuffer = Buffer.from(ADMIN_PASSWORD);
+    
+    let isValid = false;
+    // Cek panjang buffer dulu agar timingSafeEqual tidak error jika panjang berbeda
+    if (inputBuffer.length === realPasswordBuffer.length) {
+        isValid = crypto.timingSafeEqual(inputBuffer, realPasswordBuffer);
+    }
+
+    if (isValid) {
         const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
         activeSessions.add(sessionToken);
         return res.redirect(`/?token=${sessionToken}`);
@@ -173,161 +181,49 @@ app.get('/', requireAuth, (req, res) => {
                     padding: 25px 15px;
                     min-height: 100vh;
                 }
-                .container {
-                    max-width: 900px;
-                    margin: 0 auto;
-                }
-                header {
-                    text-align: center;
-                    margin-bottom: 35px;
-                    color: white;
-                    position: relative;
-                }
-                header h1 {
-                    margin: 0;
-                    font-size: 28px;
-                    font-weight: 700;
-                    letter-spacing: -0.5px;
-                    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                }
-                header p {
-                    font-size: 14px;
-                    opacity: 0.9;
-                    margin-top: 6px;
-                }
+                .container { max-width: 900px; margin: 0 auto; }
+                header { text-align: center; margin-bottom: 35px; color: white; position: relative; }
+                header h1 { margin: 0; font-size: 28px; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+                header p { font-size: 14px; opacity: 0.9; margin-top: 6px; }
                 .status-pill {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 6px;
-                    background: rgba(255, 255, 255, 0.2);
-                    padding: 4px 12px;
-                    border-radius: 20px;
-                    font-size: 12px;
-                    margin-top: 8px;
-                    backdrop-filter: blur(4px);
+                    display: inline-flex; align-items: center; gap: 6px;
+                    background: rgba(255, 255, 255, 0.2); padding: 4px 12px;
+                    border-radius: 20px; font-size: 12px; margin-top: 8px; backdrop-filter: blur(4px);
                 }
-                .dot {
-                    width: 8px;
-                    height: 8px;
-                    background-color: #4ade80;
-                    border-radius: 50%;
-                    box-shadow: 0 0 8px #4ade80;
-                }
+                .dot { width: 8px; height: 8px; background-color: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; }
                 .btn-logout {
-                    position: absolute;
-                    right: 0;
-                    top: 0;
-                    background: rgba(255, 255, 255, 0.15);
-                    color: white;
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                    padding: 8px 14px;
-                    border-radius: 10px;
-                    text-decoration: none;
-                    font-size: 12px;
-                    font-weight: 600;
-                    backdrop-filter: blur(6px);
-                    transition: background 0.2s;
+                    position: absolute; right: 0; top: 0;
+                    background: rgba(255, 255, 255, 0.15); color: white;
+                    border: 1px solid rgba(255, 255, 255, 0.3); padding: 8px 14px;
+                    border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 600;
+                    backdrop-filter: blur(6px); transition: background 0.2s;
                 }
                 .btn-logout:hover { background: rgba(255, 255, 255, 0.25); }
                 
                 .card {
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(12px);
-                    border-radius: 18px;
-                    padding: 22px;
-                    margin-bottom: 22px;
-                    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15);
-                    border-left: 6px solid #6366f1;
-                    transition: transform 0.2s ease;
+                    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+                    border-radius: 18px; padding: 22px; margin-bottom: 22px;
+                    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15); border-left: 6px solid #6366f1;
                 }
-                .card:hover { transform: translateY(-2px); }
                 .card.location { border-left-color: #3b82f6; }
                 .card.apps { border-left-color: #10b981; }
                 .card.gallery { border-left-color: #8b5cf6; }
                 .card.whatsapp { border-left-color: #f59e0b; }
-
                 .card h3 {
-                    margin-top: 0;
-                    font-size: 16px;
-                    color: #0f172a;
-                    border-bottom: 2px solid #f1f5f9;
-                    padding-bottom: 12px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
+                    margin-top: 0; font-size: 16px; color: #0f172a;
+                    border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;
                 }
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 8px;
-                }
-                th, td {
-                    padding: 12px 10px;
-                    text-align: left;
-                    font-size: 13px;
-                    border-bottom: 1px solid #f1f5f9;
-                }
-                .card.location th { background-color: #eff6ff; color: #1d4ed8; }
-                .card.apps th { background-color: #ecfdf5; color: #047857; }
-                .card.whatsapp th { background-color: #fffbeb; color: #b45309; }
-
-                th {
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    font-size: 11px;
-                    letter-spacing: 0.5px;
-                    border-radius: 6px;
-                }
-                tr:hover { background-color: #f8fafc; }
-                .badge {
-                    background-color: #dcfce7;
-                    color: #15803d;
-                    padding: 5px 10px;
-                    border-radius: 8px;
-                    font-size: 11px;
-                    font-weight: 600;
-                }
+                table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+                th, td { padding: 12px 10px; text-align: left; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+                th { font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+                .badge { background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; }
                 .btn-map {
-                    background-color: #3b82f6;
-                    color: white;
-                    padding: 6px 14px;
-                    border-radius: 8px;
-                    text-decoration: none;
-                    font-size: 12px;
-                    font-weight: 600;
-                    display: inline-block;
-                    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
-                    transition: background 0.2s;
+                    background-color: #3b82f6; color: white; padding: 6px 14px;
+                    border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600;
                 }
-                .btn-map:hover { background-color: #2563eb; }
-                .gallery-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-                    gap: 12px;
-                    margin-top: 10px;
-                }
-                .gallery-item {
-                    border-radius: 10px;
-                    overflow: hidden;
-                    border: 1px solid #e2e8f0;
-                    background: #f8fafc;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-                }
-                .gallery-item img {
-                    width: 100%;
-                    height: 95px;
-                    object-fit: cover;
-                    display: block;
-                    transition: transform 0.2s;
-                }
-                .gallery-item img:hover { transform: scale(1.05); }
-                .empty-state {
-                    text-align: center;
-                    color: #94a3b8;
-                    font-style: italic;
-                    padding: 20px;
-                    font-size: 13px;
-                }
+                .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 10px; }
+                .gallery-item img { width: 100%; height: 95px; object-fit: cover; border-radius: 10px; }
+                .empty-state { text-align: center; color: #94a3b8; font-style: italic; padding: 20px; font-size: 13px; }
             </style>
         </head>
         <body>
@@ -339,80 +235,42 @@ app.get('/', requireAuth, (req, res) => {
                     <div class="status-pill"><span class="dot"></span> Server Aktif & Terlindungi</div>
                 </header>
 
-                <!-- LOKASI GPS -->
                 <div class="card location">
                     <h3>📍 Riwayat Lokasi GPS</h3>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Koordinat</th>
-                                <th style="text-align: right;">Aksi</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Waktu</th><th>Koordinat</th><th style="text-align: right;">Aksi</th></tr></thead>
                         <tbody>
                             ${riwayatLokasi.length === 0 ? '<tr><td colspan="3" class="empty-state">Belum ada data lokasi tercatat</td></tr>' : 
-                              riwayatLokasi.map(item => `
-                                <tr>
-                                    <td>${item.waktu}</td>
-                                    <td><code>${item.lat}, ${item.lon}</code></td>
-                                    <td style="text-align: right;"><a href="https://maps.google.com/?q=${item.lat},${item.lon}" target="_blank" class="btn-map">Buka Peta</a></td>
-                                </tr>`).join('')}
+                              riwayatLokasi.map(item => `<tr><td>${item.waktu}</td><td><code>${item.lat}, ${item.lon}</code></td><td style="text-align: right;"><a href="https://maps.google.com/?q=${item.lat},${item.lon}" target="_blank" class="btn-map">Buka Peta</a></td></tr>`).join('')}
                         </tbody>
                     </table>
                 </div>
 
-                <!-- APLIKASI -->
                 <div class="card apps">
                     <h3>📦 Aplikasi Ter-install</h3>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Nama Aplikasi</th>
-                                <th style="text-align: right;">Status</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Nama Aplikasi</th><th style="text-align: right;">Status</th></tr></thead>
                         <tbody>
                             ${daftarAplikasi.length === 0 ? '<tr><td colspan="2" class="empty-state">Belum ada data aplikasi</td></tr>' : 
-                              daftarAplikasi.map(app => `
-                                <tr>
-                                    <td>${app.nama}</td>
-                                    <td style="text-align: right;"><span class="badge">${app.keterangan || 'Aktif'}</span></td>
-                                </tr>`).join('')}
+                              daftarAplikasi.map(app => `<tr><td>${app.nama}</td><td style="text-align: right;"><span class="badge">${app.keterangan || 'Aktif'}</span></td></tr>`).join('')}
                         </tbody>
                     </table>
                 </div>
 
-                <!-- GALERI FOTO -->
                 <div class="card gallery">
                     <h3>🖼️ Galeri / Tangkapan Layar</h3>
                     ${galeriFoto.length === 0 ? '<div class="empty-state">Belum ada foto atau screenshot yang diunggah.</div>' : `
-                        <div class="gallery-grid">
-                            ${galeriFoto.map(f => `
-                                <div class="gallery-item">
-                                    <a href="${f.url}" target="_blank"><img src="${f.url}" alt="Foto"></a>
-                                </div>`).join('')}
-                        </div>
+                        <div class="gallery-grid">${galeriFoto.map(f => `<div class="gallery-item"><a href="${f.url}" target="_blank"><img src="${f.url}" alt="Foto"></a></div>`).join('')}</div>
                     `}
                 </div>
 
-                <!-- LOG WHATSAPP -->
                 <div class="card whatsapp">
                     <h3>💬 Aktivitas WhatsApp</h3>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Pesan / Kontak</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Waktu</th><th>Pesan / Kontak</th></tr></thead>
                         <tbody>
                             ${logWhatsApp.length === 0 ? '<tr><td colspan="2" class="empty-state">Belum ada log pesan WhatsApp</td></tr>' : 
-                              logWhatsApp.map(w => `
-                                <tr>
-                                    <td style="width: 25%;">${w.waktu}</td>
-                                    <td><b>${w.kontak}:</b> ${w.pesan}</td>
-                                </tr>`).join('')}
+                              logWhatsApp.map(w => `<tr><td style="width: 25%;">${w.waktu}</td><td><b>${w.kontak}:</b> ${w.pesan}</td></tr>`).join('')}
                         </tbody>
                     </table>
                 </div>
@@ -466,5 +324,5 @@ app.post('/api/lapor-foto', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server dashboard berjalan elegan di port ${PORT}`);
+    console.log(`Server dashboard berjalan elegan dan aman di port ${PORT}`);
 });
