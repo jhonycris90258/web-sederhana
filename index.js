@@ -15,7 +15,7 @@ let daftarAplikasi = [];
 let galeriFoto = [];
 let logWhatsApp = [];
 
-// Rute utama langsung arahkan ke /login
+// Rute utama langsung arahkan ke halaman login
 app.get('/', (req, res) => {
     res.redirect('/login');
 });
