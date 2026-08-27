@@ -6,9 +6,9 @@ const port = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Simulasi database sederhana (menyimpan akun yang terdaftar)
+// Simulasi database penyimpanan akun
 const users = {
-    'admin': 'rahasia123' // Akun bawaan
+    'admin': 'rahasia123'
 };
 
 app.get('/', (req, res) => {
@@ -19,21 +19,36 @@ app.get('/daftar', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'daftar.html'));
 });
 
+// Halaman Lupa Sandi
+app.get('/lupa-sandi', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'lupa-sandi.html'));
+});
+
 // Proses Pendaftaran Akun Baru
 app.post('/register-process', (req, res) => {
     const { username, password } = req.body;
     if (users[username]) {
-        res.send('<script>alert("Username sudah terpakai! Gunakan yang lain."); window.location="/daftar";</script>');
+        res.send('<script>alert("Username sudah terpakai!"); window.location="/daftar";</script>');
     } else {
-        users[username] = password; // Simpan akun baru
-        res.send('<script>alert("Pendaftaran berhasil! Silakan login dengan akun baru Anda."); window.location="/";</script>');
+        users[username] = password;
+        res.send('<script>alert("Pendaftaran berhasil! Silakan login."); window.location="/";</script>');
+    }
+});
+
+// Proses Reset / Lupa Sandi
+app.post('/reset-password-process', (req, res) => {
+    const { username, newPassword } = req.body;
+    if (users[username]) {
+        users[username] = newPassword; // Perbarui sandi
+        res.send('<script>alert("Kata sandi berhasil diubah! Silakan login dengan sandi baru."); window.location="/";</script>');
+    } else {
+        res.send('<script>alert("Username tidak ditemukan di sistem!"); window.location="/lupa-sandi";</script>');
     }
 });
 
 // Proses Login
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    // Cek apakah username ada dan password-nya cocok
     if (users[username] && users[username] === password) {
         res.redirect('/dashboard');
     } else {
@@ -45,7 +60,7 @@ app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-// Template HTML untuk Halaman Fitur (Tema Gelap & Elegan)
+// Template Halaman Fitur
 function renderFiturPage(title, icon, content) {
     return `
     <!DOCTYPE html>
