@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
                 </style>
             </head>
             <body>
-                <h2>🛡️ Dashboard Pantau Anak</h2>
+                <h2>🛡️ Dashboard </h2>
 
                 <!-- TABEL HISTORY LOKASI -->
                 <div class="card">
