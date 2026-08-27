@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
     res.send(`
         <html>
             <head>
-                <title>Dashboard Pantau Anak Ultimate</title>
+                <title>Dashboard Ultimate</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 <style>
                     body { font-family: Arial, sans-serif; padding: 15px; background: #f4f4f9; color: #333; }
