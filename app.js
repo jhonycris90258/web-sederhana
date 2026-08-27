@@ -10,7 +10,7 @@ let daftarAplikasi = [];
 let galeriFoto = [];
 let logWhatsApp = [];
 
-// Dashboard Profesional & Modern
+// Dashboard Berwarna & Modern
 app.get('/', (req, res) => {
     res.send(`
         <!DOCTYPE html>
@@ -18,23 +18,15 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Parental Control Dashboard</title>
+            <title>Parental Control Center</title>
             <style>
-                :root {
-                    --primary: #4f46e5;
-                    --primary-hover: #4338ca;
-                    --bg-color: #f8fafc;
-                    --card-bg: #ffffff;
-                    --text-main: #1e293b;
-                    --text-muted: #64748b;
-                    --border-color: #e2e8f0;
-                }
                 body {
                     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-                    background-color: var(--bg-color);
-                    color: var(--text-main);
+                    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+                    color: #1e293b;
                     margin: 0;
                     padding: 20px;
+                    min-height: 100vh;
                 }
                 .container {
                     max-width: 900px;
@@ -43,30 +35,37 @@ app.get('/', (req, res) => {
                 header {
                     text-align: center;
                     margin-bottom: 30px;
+                    color: white;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }
                 header h1 {
-                    color: var(--primary);
                     margin: 0;
-                    font-size: 24px;
+                    font-size: 26px;
                 }
                 header p {
-                    color: var(--text-muted);
                     font-size: 14px;
+                    opacity: 0.9;
                     margin-top: 5px;
                 }
                 .card {
-                    background: var(--card-bg);
-                    border-radius: 12px;
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(10px);
+                    border-radius: 16px;
                     padding: 20px;
                     margin-bottom: 20px;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-                    border: 1px solid var(--border-color);
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+                    border-left: 6px solid #6366f1;
                 }
+                .card.location { border-left-color: #3b82f6; }
+                .card.apps { border-left-color: #10b981; }
+                .card.gallery { border-left-color: #8b5cf6; }
+                .card.whatsapp { border-left-color: #f59e0b; }
+
                 .card h3 {
                     margin-top: 0;
                     font-size: 16px;
-                    color: var(--text-main);
-                    border-bottom: 2px solid var(--bg-color);
+                    color: #1e293b;
+                    border-bottom: 2px solid #f1f5f9;
                     padding-bottom: 10px;
                     display: flex;
                     align-items: center;
@@ -81,18 +80,17 @@ app.get('/', (req, res) => {
                     padding: 12px;
                     text-align: left;
                     font-size: 13px;
-                    border-bottom: 1px solid var(--border-color);
+                    border-bottom: 1px solid #e2e8f0;
                 }
                 th {
-                    background-color: #f1f5f9;
-                    color: var(--text-muted);
+                    background-color: #f8fafc;
+                    color: #64748b;
                     font-weight: 600;
                     text-transform: uppercase;
                     font-size: 11px;
-                    letter-spacing: 0.5px;
                 }
                 tr:hover {
-                    background-color: #f8fafc;
+                    background-color: #f1f5f9;
                 }
                 .badge {
                     background-color: #dcfce7;
@@ -103,18 +101,17 @@ app.get('/', (req, res) => {
                     font-weight: 600;
                 }
                 .btn-map {
-                    background-color: var(--primary);
+                    background-color: #3b82f6;
                     color: white;
                     padding: 6px 12px;
                     border-radius: 6px;
                     text-decoration: none;
                     font-size: 12px;
                     font-weight: 500;
-                    transition: background 0.2s;
                     display: inline-block;
                 }
                 .btn-map:hover {
-                    background-color: var(--primary-hover);
+                    background-color: #2563eb;
                 }
                 .gallery-grid {
                     display: grid;
@@ -125,9 +122,8 @@ app.get('/', (req, res) => {
                 .gallery-item {
                     border-radius: 8px;
                     overflow: hidden;
-                    border: 1px solid var(--border-color);
-                    background: #f1f5f9;
-                    text-align: center;
+                    border: 1px solid #e2e8f0;
+                    background: #f8fafc;
                 }
                 .gallery-item img {
                     width: 100%;
@@ -137,7 +133,7 @@ app.get('/', (req, res) => {
                 }
                 .empty-state {
                     text-align: center;
-                    color: var(--text-muted);
+                    color: #94a3b8;
                     font-style: italic;
                     padding: 15px;
                 }
@@ -151,7 +147,7 @@ app.get('/', (req, res) => {
                 </header>
 
                 <!-- LOKASI GPS -->
-                <div class="card">
+                <div class="card location">
                     <h3>📍 Riwayat Lokasi GPS</h3>
                     <table>
                         <thead>
@@ -174,7 +170,7 @@ app.get('/', (req, res) => {
                 </div>
 
                 <!-- APLIKASI -->
-                <div class="card">
+                <div class="card apps">
                     <h3>📦 Aplikasi Ter-install</h3>
                     <table>
                         <thead>
@@ -195,7 +191,7 @@ app.get('/', (req, res) => {
                 </div>
 
                 <!-- GALERI FOTO -->
-                <div class="card">
+                <div class="card gallery">
                     <h3>🖼️ Galeri / Tangkapan Layar</h3>
                     ${galeriFoto.length === 0 ? '<div class="empty-state">Belum ada foto yang diunggah.</div>' : `
                         <div class="gallery-grid">
@@ -208,7 +204,7 @@ app.get('/', (req, res) => {
                 </div>
 
                 <!-- LOG WHATSAPP -->
-                <div class="card">
+                <div class="card whatsapp">
                     <h3>💬 Aktivitas WhatsApp</h3>
                     <table>
                         <thead>
@@ -234,8 +230,6 @@ app.get('/', (req, res) => {
 });
 
 // --- ENDPOINT API PENERIMA DATA ---
-
-// 1. Lokasi
 app.post('/api/lapor-lokasi', (req, res) => {
     const { lat, lon } = req.body;
     if (lat && lon) {
@@ -247,7 +241,6 @@ app.post('/api/lapor-lokasi', (req, res) => {
     }
 });
 
-// 2. Aplikasi
 app.post('/api/lapor-apk', (req, res) => {
     const { apps } = req.body;
     if (apps && Array.isArray(apps)) {
@@ -258,7 +251,6 @@ app.post('/api/lapor-apk', (req, res) => {
     }
 });
 
-// 3. WhatsApp
 app.post('/api/lapor-wa', (req, res) => {
     const { kontak, pesan } = req.body;
     if (kontak && pesan) {
@@ -269,7 +261,6 @@ app.post('/api/lapor-wa', (req, res) => {
     }
 });
 
-// 4. Galeri / Foto (Baru)
 app.post('/api/lapor-foto', (req, res) => {
     const { url } = req.body;
     if (url) {
@@ -282,5 +273,5 @@ app.post('/api/lapor-foto', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server dashboard profesional berjalan di port ${PORT}`);
+    console.log(`Server dashboard berwarna berjalan di port ${PORT}`);
 });
