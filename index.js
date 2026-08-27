@@ -10,12 +10,6 @@ app.use(express.urlencoded({ extended: true }));
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'rahasia123'; 
 const activeSessions = new Set();
 
-let riwayatLokasi = []; 
-let daftarAplikasi = [];
-let galeriFoto = [];
-let logWhatsApp = [];
-
-// Rute utama langsung arahkan ke halaman login
 app.get('/', (req, res) => {
     res.redirect('/login');
 });
@@ -73,7 +67,7 @@ app.post('/api/login', (req, res) => {
     const { password } = req.body;
     const inputBuffer = Buffer.from(password || '');
     const realPasswordBuffer = Buffer.from(ADMIN_PASSWORD);
-    
+
     let isValid = false;
     if (inputBuffer.length === realPasswordBuffer.length) {
         isValid = crypto.timingSafeEqual(inputBuffer, realPasswordBuffer);
