@@ -6,6 +6,11 @@ const port = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Simulasi database sederhana (menyimpan akun yang terdaftar)
+const users = {
+    'admin': 'rahasia123' // Akun bawaan
+};
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -14,9 +19,22 @@ app.get('/daftar', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'daftar.html'));
 });
 
+// Proses Pendaftaran Akun Baru
+app.post('/register-process', (req, res) => {
+    const { username, password } = req.body;
+    if (users[username]) {
+        res.send('<script>alert("Username sudah terpakai! Gunakan yang lain."); window.location="/daftar";</script>');
+    } else {
+        users[username] = password; // Simpan akun baru
+        res.send('<script>alert("Pendaftaran berhasil! Silakan login dengan akun baru Anda."); window.location="/";</script>');
+    }
+});
+
+// Proses Login
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    if (username === 'admin' && password === 'rahasia123') {
+    // Cek apakah username ada dan password-nya cocok
+    if (users[username] && users[username] === password) {
         res.redirect('/dashboard');
     } else {
         res.send('<script>alert("Login Gagal! Username atau Password salah."); window.location="/";</script>');
@@ -93,25 +111,24 @@ function renderFiturPage(title, icon, content) {
     `;
 }
 
-// Endpoint Detail Fitur dengan Desain Baru
 app.get('/dashboard/lokasi', (req, res) => {
-    res.send(renderFiturPage('Peta Lokasi Perangkat', '📍', '<p>Status: Perangkat terdeteksi aktif.</p><p>Koordinat: -6.2088, 106.8456 (Jakarta)</p><p><i>Fitur pelacakan GPS real-time siap dihubungkan.</i></p>'));
+    res.send(renderFiturPage('Peta Lokasi Perangkat', '📍', '<p>Status: Perangkat terdeteksi aktif.</p><p>Koordinat: -6.2088, 106.8456 (Jakarta)</p>'));
 });
 
 app.get('/dashboard/riwayat-web', (req, res) => {
-    res.send(renderFiturPage('Riwayat Website', '🌐', '<p>Daftar situs yang baru saja dikunjungi oleh perangkat anak:</p><ul><li>google.com - 01:30 WIB</li><li>youtube.com - 01:15 WIB</li></ul>'));
+    res.send(renderFiturPage('Riwayat Website', '🌐', '<p>Daftar situs yang dikunjungi:</p><ul><li>google.com</li><li>youtube.com</li></ul>'));
 });
 
 app.get('/dashboard/galeri', (req, res) => {
-    res.send(renderFiturPage('Galeri Foto', '🖼️', '<p>Penyimpanan foto perangkat anak tersinkronisasi.</p><p><i>Belum ada foto baru yang diunggah hari ini.</i></p>'));
+    res.send(renderFiturPage('Galeri Foto', '🖼️', '<p>Penyimpanan foto perangkat anak tersinkronisasi.</p>'));
 });
 
 app.get('/dashboard/whatsapp', (req, res) => {
-    res.send(renderFiturPage('Pantau WhatsApp', '💬', '<p>Pemantauan aktivitas pesan masuk dan keluar.</p><p>Status: Layanan pemantauan siaga.</p>'));
+    res.send(renderFiturPage('Pantau WhatsApp', '💬', '<p>Pemantauan aktivitas pesan masuk dan keluar.</p>'));
 });
 
 app.get('/dashboard/apk-install', (req, res) => {
-    res.send(renderFiturPage('APK Install (Aplikasi)', '📱', '<p>Daftar aplikasi yang terpasang di HP anak:</p><ul><li>WhatsApp (v2.26)</li><li>YouTube (v19.1)</li><li>Instagram (v310.0)</li></ul>'));
+    res.send(renderFiturPage('APK Install (Aplikasi)', '📱', '<p>Aplikasi terpasang: WhatsApp, YouTube, Instagram.</p>'));
 });
 
 app.listen(port, () => {
