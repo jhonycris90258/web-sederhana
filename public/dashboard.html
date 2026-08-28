@@ -50,18 +50,27 @@
         tr:hover {
             background-color: rgba(255, 255, 255, 0.03);
         }
+        
+        /* Tombol Dasar */
         a.btn-menu {
             display: inline-block;
             padding: 8px 16px;
-            background-color: #3b82f6;
             color: white;
             text-decoration: none;
             border-radius: 6px;
             font-size: 14px;
             font-weight: bold;
-            transition: background 0.2s;
+            transition: opacity 0.2s;
         }
-        a.btn-menu:hover { background-color: #2563eb; }
+        a.btn-menu:hover { opacity: 0.85; }
+
+        /* Warna Khusus Tombol */
+        .btn-kuning { background-color: #eab308; color: #000; } /* Lokasi */
+        .btn-ungu { background-color: #a855f7; }   /* Riwayat Web */
+        .btn-hijau { background-color: #22c55e; }   /* Galeri */
+        .btn-wa { background-color: #10b981; }      /* WhatsApp */
+        .btn-oranye { background-color: #f97316; }  /* Live Screen */
+        .btn-merah { background-color: #ef4444; }   /* APK Install */
         
         .logout-container {
             text-align: center;
@@ -91,28 +100,27 @@
             <tbody>
                 <tr>
                     <td>📍 <b>Lokasi Saat Ini</b></td>
-                    <td><a href="/dashboard/lokasi" class="btn-menu">Buka</a></td>
+                    <td><a href="/dashboard/lokasi" class="btn-menu btn-kuning">Buka</a></td>
                 </tr>
                 <tr>
                     <td>🌐 <b>Riwayat Website</b></td>
-                    <td><a href="/dashboard/riwayat-web" class="btn-menu">Buka</a></td>
+                    <td><a href="/dashboard/riwayat-web" class="btn-menu btn-ungu">Buka</a></td>
                 </tr>
                 <tr>
                     <td>🖼️ <b>Galeri Foto</b></td>
-                    <td><a href="/dashboard/galeri" class="btn-menu">Buka</a></td>
+                    <td><a href="/dashboard/galeri" class="btn-menu btn-hijau">Buka</a></td>
                 </tr>
                 <tr>
                     <td>💬 <b>Pantau WhatsApp</b></td>
-                    <td><a href="/dashboard/whatsapp" class="btn-menu">Buka</a></td>
+                    <td><a href="/dashboard/whatsapp" class="btn-menu btn-wa">Buka</a></td>
                 </tr>
-                <!-- Fitur Baru Live Screen -->
                 <tr>
                     <td>📺 <b>Live Screen (Layar Langsung)</b></td>
-                    <td><a href="/dashboard/livescreen" class="btn-menu">Buka</a></td>
+                    <td><a href="/dashboard/livescreen" class="btn-menu btn-oranye">Buka</a></td>
                 </tr>
                 <tr>
                     <td>📱 <b>APK Install (Aplikasi)</b></td>
-                    <td><a href="/dashboard/apk-install" class="btn-menu">Buka</a></td>
+                    <td><a href="/dashboard/apk-install" class="btn-menu btn-merah">Buka</a></td>
                 </tr>
             </tbody>
         </table>
